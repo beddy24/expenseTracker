@@ -1,0 +1,10 @@
+# Dépendances (se réinstallent avec npm ci)
+node_modules/
+
+# 🔒 Secrets & variables d'environnement — NE JAMAIS pousser
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
