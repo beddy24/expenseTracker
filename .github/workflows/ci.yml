@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write          # autorise le jeton à publier des images
+      packages: write
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
@@ -21,8 +21,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Préparer le nom de l'image en minuscules
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
       - name: Construire l'image
-        run: docker build -t ghcr.io/${{ github.repository }}:latest .
+        run: docker build -t ${{ env.IMAGE }}:latest .
 
       - name: Pousser l'image vers le registre
-        run: docker push ghcr.io/${{ github.repository }}:latest
+        run: docker push ${{ env.IMAGE }}:latest
