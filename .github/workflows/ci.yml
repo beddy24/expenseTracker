@@ -3,15 +3,26 @@ name: CI
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write          # autorise le jeton à publier des images
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Construire l'image Docker
-        run: docker build -t expense-api .
+      - name: Se connecter à ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construire l'image
+        run: docker build -t ghcr.io/${{ github.repository }}:latest .
+
+      - name: Pousser l'image vers le registre
+        run: docker push ghcr.io/${{ github.repository }}:latest
