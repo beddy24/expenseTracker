@@ -25,8 +25,11 @@ jobs:
         run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
       - name: Construire l'image
-        run: docker build -t ${{ env.IMAGE }}:latest .
-        
+        run: |
+          docker build \
+            -t ${{ env.IMAGE }}:latest \
+            -t ${{ env.IMAGE }}:${{ github.sha }} \
+
       - name: Test de démarrage (smoke test)
         run: |
           docker run -d --name smoke -p 5000:5000 ${{ env.IMAGE }}:latest
