@@ -26,6 +26,21 @@ jobs:
 
       - name: Construire l'image
         run: docker build -t ${{ env.IMAGE }}:latest .
+        
+      - name: Test de démarrage (smoke test)
+        run: |
+          docker run -d --name smoke -p 5000:5000 ${{ env.IMAGE }}:latest
+          sleep 5
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ping)
+          echo "Code HTTP reçu : $code"
+          if [ "$code" != "404" ]; then
+            echo "❌ Le serveur n'a pas démarré correctement"
+            docker logs smoke
+            docker rm -f smoke
+            exit 1
+          fi
+          docker rm -f smoke
+          echo "✅ Le conteneur démarre et répond"
 
       - name: Pousser l'image vers le registre
         run: docker push ${{ env.IMAGE }}:latest
